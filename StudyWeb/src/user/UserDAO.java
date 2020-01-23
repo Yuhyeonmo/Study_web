@@ -14,12 +14,12 @@ public class UserDAO {
 	
 	public UserDAO()
 	{
-		String URL = "jdbc:mysql://localhost:3307/Board";
+		String URL = "jdbc:mysql://localhost:3307/Board?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 		String dbID = "root";
 		String dbPassword = "1q2w3e4r!";
 		
 		try{
-		Class.forName("com.mysql.jdbc.Driver");
+		Class.forName("com.mysql.cj.jdbc.Driver");
 		conn = DriverManager.getConnection(URL, dbID, dbPassword);
 		} catch (Exception e){
 			System.out.println("ERROR " + e);
@@ -28,7 +28,7 @@ public class UserDAO {
 	
 	public int login(String userID, String userPw)
 	{
-		String sql = "SELECT userPassword form user where userID = ?";
+		String sql = "SELECT userPassword from user where userID = ?";
 		try{
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, userID);
