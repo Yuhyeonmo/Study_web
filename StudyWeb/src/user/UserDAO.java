@@ -29,25 +29,34 @@ public class UserDAO {
 	public int login(String userID, String userPw)
 	{
 		String sql = "SELECT userPassword from user where userID = ?";
-		try{
+		try {
+			// pstmt : prepared statement 정해진 sql문장을 db에 삽입하는 형식으로 인스턴스가져옴
 			pstmt = conn.prepareStatement(sql);
+			// sql인젝션 같은 해킹기법을 방어하는것... pstmt을 이용해 하나의 문장을 미리 준비해서(물음표사용)
+			// 물음표해당하는 내용을 유저아이디로, 매개변수로 이용.. 1)존재하는지 2)비밀번호무엇인지
 			pstmt.setString(1, userID);
+			// rs:result set 에 결과보관
 			rs = pstmt.executeQuery();
-			if(rs.next()){
-				if(rs.getString(1).equals(userPw)){
-					return 1;
-				}
-				else {
-					return 0;
-				}
+			// 결과가 존재한다면 실행
+			if (rs.next()) {
+				// 패스워드 일치한다면 실행
+				if (rs.getString(1).equals(userPw)) {
+					return 1; // 라긴 성공
+				} else
+					return 0; // 비밀번호 불일치
 			}
-			
-		}catch (Exception e){
-			System.out.println("ERROR " + e);
+			return -1; // 아이디가 없음 오류
+
+		} catch (Exception e) {
+
+			e.printStackTrace();
+
 		}
-		
-		return -2;
+		return -2; // 데이터베이스 오류를 의미
+
 	}
+
+	
 	
 	public int join(UserDTO user)
 	{
