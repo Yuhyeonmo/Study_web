@@ -1,6 +1,11 @@
+<%@page import="java.util.ArrayList"%>
+<%@page import="bbs.BbsDAO"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ page import="java.io.PrintWriter"%>
+<%@ page import="bbs.BbsDAO"%>
+<%@ page import="bbs.Bbs"%>
+<%@ page import="java.util.ArrayList"%>
 
     
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -12,11 +17,17 @@
 <title>jsp 게시판 웹사이트</title>
 </head>
 <body>
-<%String userID =null;
-  if(session.getAttribute("userId")!=null){
-	  userID = (String)session.getAttribute("userID");
-  }
-  %>
+<%
+	String userID = null; // 로그인이 된 사람들은 로그인정보를 담을 수 있도록한다
+	if (session.getAttribute("userID") != null) {
+		userID = (String) session.getAttribute("userID");
+	}
+
+	int pageNum = 1;
+	if (request.getParameter("pageNum") != null) {
+		pageNum = Integer.parseInt(request.getParameter("pageNum"));
+	}
+%>
      <nav class ="navbar navbar-default">
         <div class="navbar-header"> <!-- 홈페이지의 로고 -->
             <button type="button" class="navbar-toggle collapsed"
@@ -80,14 +91,32 @@
 					</tr>
 				</thead>
 				<tbody>
+				<%	BbsDAO bbs = new BbsDAO(); 
+					ArrayList<Bbs> list = bbs.getList(pageNum);
+					for(int i=list.size()-1;i>=0;i--){
+						%>
 					<tr>
-						<td>1</td>
-						<td>안녕하세요</td>
-						<td>유현모</td>
-						<td>2020-02-03</td>
+						<td><%=list.get(i).getBbsID() %></td>
+						<td><%=list.get(i).getBbsTitle() %></td>
+						<td><%=list.get(i).getUserID() %></td>
+						<td><%=list.get(i).getBbsDate() %></td>
 					</tr>
+					<%} %>
+					
 				</tbody>
 			</table>	
+			<% if (pageNum != 1) {
+				%>
+				<a href="bbs.jsp?pageNumber=<%=pageNum - 1%>"
+					class="btn btn-success btn-arrow-left">이전</a>
+				<%
+					}
+					if (bbs.nextPage(pageNum)) {
+				%>
+				<a href="bbs.jsp?pageNumber=<%=pageNum + 1%>"
+					class="btn btn-success btn-arrow-left">다음</a>
+				<% } %>
+
 			<a href = "write.jsp" class="btn btn-primary pull-right">글쓰기</a>
 		</div>
 	</div>

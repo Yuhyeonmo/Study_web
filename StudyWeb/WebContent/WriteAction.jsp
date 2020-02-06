@@ -71,8 +71,6 @@
 
 		} else {
 
-
-
 			if (bbs.getBbsTitle() == null || bbs.getBbsContent() == null) {
 
 				PrintWriter script = response.getWriter();

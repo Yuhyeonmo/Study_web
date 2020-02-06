@@ -5,12 +5,13 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
 public class BbsDAO {
 	private Connection conn;
-	private PreparedStatement pstmt;
+	//private PreparedStatement pstmt;
 	private ResultSet rs;
 	
 	public BbsDAO()
@@ -27,39 +28,133 @@ public class BbsDAO {
 		}		
 	}
 	
-	public int getNum(){
-		String SQL = "select count(*) from BBS";
+	public ArrayList<Bbs> getList(int pageNum){
+		String SQL = "SELECT * FROM BBS WHERE bbsID < ? AND bbsAvailable = 1 ORDER BY bbsID DESC LIMIT 10";
+		
+		ArrayList<Bbs> array = new ArrayList<Bbs>();
+		
 		try{
-			pstmt = conn.prepareStatement(SQL);
+			PreparedStatement pstmt = conn.prepareStatement(SQL);
+			pstmt.setInt(1, getNum() - (pageNum-1)*10);
 			rs = pstmt.executeQuery();
-			return rs.getInt(1)+1;
-		} catch (Exception e){
+			while(rs.next()){
+				Bbs bbs = new Bbs();
+				bbs.setBbsID(rs.getInt(1));
+				bbs.setBbsTitle(rs.getString(2));
+				bbs.setUserID(rs.getString(3));
+				bbs.setBbsDate(rs.getString(4));
+				bbs.setBbsContent(rs.getString(5));
+				bbs.setBbsAvaliable(rs.getInt(6));
+				
+				array.add(bbs);
+				System.out.println("list add  : "+bbs.getBbsID());
+			}
+		}catch(Exception e){
 			e.printStackTrace();
-			return -1;
 		}
+		
+		return array;
+	}
+	public boolean nextPage(int pageNum){
+		
+		String SQL = "SELECT * FROM BBS WHERE bbsID < ? AND bbsAvailable = 1 ORDER BY bbsID DESC LIMIT 10";
+		ArrayList<Bbs> array = new ArrayList<Bbs>();
+		try{
+			PreparedStatement pstmt = conn.prepareStatement(SQL);
+			pstmt.setInt(1, getNum() - (pageNum-1)*10);
+			rs = pstmt.executeQuery();
+			if(rs.next()){
+				return true;
+			}
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+		return false;
 	}
 	
+	public int getNum() { 
+
+		String SQL = "SELECT bbsID FROM BBS ORDER BY bbsID DESC";
+		try {
+			PreparedStatement pstmt = conn.prepareStatement(SQL);
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				return rs.getInt(1) + 1;
+			}
+			return 1;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return -1; //데이터베이스 오류
+	}
+	public String getDate() { 
+
+		String SQL = "SELECT NOW()";
+		try {
+			PreparedStatement pstmt = conn.prepareStatement(SQL);
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+			return rs.getString(1);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return ""; //데이터베이스 오류
+	}
+
 	public int write(String bbsTitle, String userID, String bbsContent){
 		
-		String SQL = "Insert into BBS values(?,?,?,?,?,?)";
+		String SQL = "Insert INTO BBS VALUES(?, ?, ?, ?, ?, ?)";
 		Calendar calendar = Calendar.getInstance();
         java.util.Date date = calendar.getTime();
-        String today = (new SimpleDateFormat("yyyyMMddHHmmss").format(date));
-
+        String today = (new SimpleDateFormat("yyyy-MM-dd hh:mm:s").format(date));
+        System.out.println(getNum());
+        System.out.println(today);
 	
 		try{
-			pstmt = conn.prepareStatement(SQL);
+			PreparedStatement pstmt = conn.prepareStatement(SQL);
 			pstmt.setInt(1, getNum());
 			pstmt.setString(2, bbsTitle);
 			pstmt.setString(3, userID);
 			pstmt.setString(4, today);
 			pstmt.setString(5, bbsContent);
 			pstmt.setInt(6, 1);
+			
+			return pstmt.executeUpdate();
 		} catch(Exception e){
 			e.printStackTrace();
+			return -1;
 		}
 		
-	
-		return -1;
+		
+		
 	}
+//	public int write(String bbsTitle, String userID, String bbsContent) { 
+//
+//		String SQL = "INSERT INTO BBS VALUES(?, ?, ?, ?, ?, ?)";
+//
+//		try {
+//
+//			
+//
+//			PreparedStatement pstmt = conn.prepareStatement(SQL);
+//
+//			pstmt.setInt(1, getNum());
+//			pstmt.setString(2, bbsTitle);
+//			pstmt.setString(3, userID);
+//			pstmt.setString(4, getDate());
+//			pstmt.setString(5, bbsContent);
+//			pstmt.setInt(6,1);
+//
+//			return pstmt.executeUpdate();
+//
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//
+//		return -1; //데이터베이스 오류
+//
+//	}
+//
 }
+
