@@ -124,11 +124,33 @@ public class BbsDAO {
 		} catch(Exception e){
 			e.printStackTrace();
 			return -1;
+		}	
+	}
+	
+	public Bbs getBbs(int bbsID){
+		String SQL = "SELECT * FROM bbs where bbsID = ?";
+		try {
+			PreparedStatement pstmt = conn.prepareStatement(SQL);
+			pstmt.setInt(1, bbsID);
+			rs = pstmt.executeQuery();
+			if(rs.next()){
+				Bbs bbs = new Bbs();
+				bbs.setBbsID(rs.getInt(1));
+				bbs.setBbsTitle(rs.getString(2));
+				bbs.setUserID(rs.getString(3));
+				bbs.setBbsDate(rs.getString(4));
+				bbs.setBbsContent(rs.getString(5));
+				bbs.setBbsAvaliable(rs.getInt(6));
+				
+				return bbs;
+			}
+		} catch (Exception e){
+			e.printStackTrace();
 		}
 		
-		
-		
+		return null;
 	}
+	
 //	public int write(String bbsTitle, String userID, String bbsContent) { 
 //
 //		String SQL = "INSERT INTO BBS VALUES(?, ?, ?, ?, ?, ?)";
