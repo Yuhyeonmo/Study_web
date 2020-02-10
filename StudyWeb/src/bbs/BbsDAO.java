@@ -178,5 +178,37 @@ public class BbsDAO {
 //
 //	}
 //
+	
+	public int update(int bbsID, String bbsTitle, String bbsContent){
+		String SQL = "UPDATE BBS SET bbsTitle =?, bbsContent=?, bbsDate=? where bbsID=?";
+		Calendar calendar = Calendar.getInstance();
+        java.util.Date date = calendar.getTime();
+        String today = (new SimpleDateFormat("yyyy-MM-dd hh:mm:s").format(date));
+		try {
+			PreparedStatement pstmt = conn.prepareStatement(SQL);
+			pstmt.setString(1, bbsTitle);
+			pstmt.setString(2, bbsContent);		
+			pstmt.setString(3, today);
+			pstmt.setInt(4, bbsID);
+			return pstmt.executeUpdate();
+						
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+		return -1;
+	}
+	
+	public int delete(int bbsID){
+		String SQL = "DELETE FROM BBS where bbsID = ?";
+		try{
+			PreparedStatement pstmt = conn.prepareStatement(SQL);
+			pstmt.setInt(1, bbsID);
+			
+			return pstmt.executeUpdate();
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+		return -1;
+	}
 }
 
